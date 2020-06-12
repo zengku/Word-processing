@@ -1,53 +1,48 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define LEN sizeof(struct myword)
 
-struct myword
-{
-    int     num;
-    char    *word;
-    struct  myword  *next;    /*  æŒ‡å‘ä¸‹ä¸€ä¸ªèŠ‚ç‚¹ */
-};
+#define LEN sizeof(mywd_t)
+
+typedef struct myword {
+    int     num;            /* ³öÏÖ¸öÊý */
+    char    *word;          /* ³öÏÖµ¥´Ê */
+    struct  myword  *next;    
+}mywd_t, *pmywd;
 
 void main(void)
-{
-    /* è¾“å‡ºé“¾è¡¨åˆ°æ–‡ä»¶ */ 
-    void print_link_to_file(struct myword *head);     
-    /* æ‰¾å•è¯ï¼Œè¾“å‡ºå•è¯é“¾è¡¨ */ 
-    struct myword *find_words(FILE *input);           
-    /* é”€æ¯é“¾è¡¨ */
-    void destory_word(struct myword *head);           
-    
+{   
+    void print_link_to_file(pmywd head);   /* Êä³öÁ´±íµ½ÎÄ¼þ */      
+    pmywd find_words(FILE *input);         /* ½«µ¥´ÊÊä³öµ½Á´±í */
+    void destory_word(pmywd head);		   /* Ïú»ÙÁ´±íÊÍ·ÅÄÚ´æ */
+
     char infile_name[] = {"input.txt"};
-    struct myword *head;
+    pmywd head;
     FILE *input;
     
     input = fopen(infile_name, "r");                  
     if (input == NULL) {
-        printf("æ‰“å¼€æ–‡ä»¶%så¤±è´¥\n", infile_name);
+        printf("´ò¿ªÎÄ¼þ%sÊ§°Ü\n", infile_name);
         exit(0);
     }
-    /* æ‰¾å•è¯ */
-    head = find_words(input);                        
-    fclose(input);                          
-    /* å°†é“¾è¡¨è¾“å‡ºåˆ°æ–‡ä»¶ */           
-    print_link_to_file(head);                         
+    
+    head = find_words(input);       /* ÕÒµ¥´Ê */                 
+    fclose(input);                                   
+    print_link_to_file(head);       /* ½«Á´±íÊä³öµ½ÎÄ¼þ */                  
     destory_word(head);
-
 }
 
-void print_link_to_file(struct myword *head)
+void print_link_to_file(pmywd head)
 {
-    /* è¾“å…¥é“¾è¡¨ï¼Œå°†é“¾è¡¨å†…å®¹è¾“å‡ºåˆ°input.txt */ 
+    /* ÊäÈëÁ´±í£¬½«Á´±íÄÚÈÝÊä³öµ½input.txt */ 
     printf("NOW,print LINK  to File......\n");
-    struct myword *p;
+    pmywd p;
     FILE *output;
     char outfile_name[] = {"output.txt"};
     output = fopen(outfile_name, "w");
 
     if (output == NULL) {
-        printf("æ‰“å¼€æ–‡ä»¶%så¤±è´¥\n", outfile_name);
+        printf("´ò¿ªÎÄ¼þ%sÊ§°Ü\n", outfile_name);
         exit(0);
     }
     p = head->next;
@@ -60,14 +55,14 @@ void print_link_to_file(struct myword *head)
     printf("print to file Done!\n");
 }
  
-struct myword * new_word(char word[]) 
+pmywd new_word(char word[]) 
 {
-    /* è¾“å…¥ä¸€ä¸ªå•è¯æ•°ç»„ï¼Œè¿”å›žä¸€ä¸ªmywordç»“æž„ä½“ */
-    struct myword *tmp;
+    /* ÊäÈëÒ»¸öµ¥´ÊÊý×é£¬·µ»ØÒ»¸ömyword½á¹¹Ìå */
+    pmywd tmp;
     char *t_word;
-    /* ç»™ä¸€ä¸ªæ–°çš„èŠ‚ç‚¹ç”³è¯·ç©ºé—´ */
-    tmp = (struct myword *) malloc(LEN);        
-    /* åŠ¨æ€ç”³è¯·ä¸€ä¸ªç©ºé—´æ¥ä¿å­˜myword->wordï¼Œå› ä¸ºè¿™æœ¬èº«æ˜¯ä¸ªæŒ‡é’ˆï¼Œéœ€è¦æŒ‡å‘ä¸€ä¸ªæ•°ç»„æ¥ä¿å­˜ */
+    /* ¸øÒ»¸öÐÂµÄ½ÚµãÉêÇë¿Õ¼ä */
+    tmp = (pmywd) malloc(LEN);        
+    /* ¶¯Ì¬ÉêÇëÒ»¸ö¿Õ¼äÀ´±£´æmyword->word£¬ÒòÎªÕâ±¾ÉíÊÇ¸öÖ¸Õë£¬ÐèÒªÖ¸ÏòÒ»¸öÊý×éÀ´±£´æ */
     t_word = (char *) malloc(strlen(word));
     strcpy(t_word, strlwr(word));
     tmp->word = t_word;
@@ -76,41 +71,41 @@ struct myword * new_word(char word[])
 
     return tmp;
 }
- 
-struct myword *instert_word(struct myword *tmp, struct myword *head)
+
+pmywd instert_word(pmywd tmp, pmywd head)
 {
-    struct myword *cur;
+    pmywd cur;
 
     if (head == NULL) {
-        head = (struct myword *) malloc(LEN);
+        head = (pmywd) malloc(LEN);
         head->next = tmp;
     } else {
         cur = head->next;
         while (cur != NULL) {
             if (strcmp(tmp->word, cur->word) < 0) {
-                /* å°äºŽç¬¬ä¸€ä¸ªå€¼ ,å› ä¸ºé“¾è¡¨æœ‰åºï¼Œå¦‚æžœæ¯”ç¬¬ä¸€ä¸ªå°ï¼Œé‚£å°±æ˜¯æœ€å°çš„ */
+                /* Ð¡ÓÚµÚÒ»¸öÖµ ,ÒòÎªÁ´±íÓÐÐò£¬Èç¹û±ÈµÚÒ»¸öÐ¡£¬ÄÇ¾ÍÊÇ×îÐ¡µÄ */
                 tmp->next = cur;
                 head->next = tmp;
                 break;
             } else if (strcmp(tmp->word, cur->word) == 0) {
-                /* ç­‰äºŽå½“å‰å€¼ */
+                /* µÈÓÚµ±Ç°Öµ */
                 cur->num++;
                 free(tmp);        
                 break;
             } else if (strcmp(tmp->word, cur->word) > 0) {   
-                /* å¤§äºŽå½“å‰å€¼ */ 
+                /* ´óÓÚµ±Ç°Öµ */ 
                 if (cur->next != NULL) {
-                    /* åŽé¢ä¸ä¸ºç©º */ 
+                    /* ºóÃæ²»Îª¿Õ */ 
                     if (strcmp(tmp->word, cur->next->word) < 0) {
-                        /* å°äºŽä¸‹ä¸€ä¸ªå€¼ ,æ’å…¥å½“å‰èŠ‚ç‚¹ä¹‹åŽ */ 
+                        /* Ð¡ÓÚÏÂÒ»¸öÖµ ,²åÈëµ±Ç°½ÚµãÖ®ºó */ 
                         tmp->next = cur->next;
                         cur->next = tmp;
                         break; 
                     }
-                    /* å¤§äºŽç­‰äºŽä¸‹ä¸€ä¸ªå€¼ */ 
+                    /* ´óÓÚµÈÓÚÏÂÒ»¸öÖµ */ 
                     cur = cur->next;
                 } else {
-                    /* åŽé¢ä¸ºç©º */ 
+                    /* ºóÃæÎª¿Õ */ 
                     cur->next = tmp; 
                     break; 
                 }
@@ -119,16 +114,14 @@ struct myword *instert_word(struct myword *tmp, struct myword *head)
     }
 
     return head;
- }
+}
  
-struct myword *find_words(FILE *input)
+pmywd find_words(FILE *input)
 {
     printf("start find Words....\n");
-    struct myword *head, *tmp;
-    /* æ’å…¥èŠ‚ç‚¹ */
-    struct myword *instert_word(struct myword *tmp, struct myword *head); 
-    /* ç”Ÿæˆä¸€ä¸ªæ–°çš„èŠ‚ç‚¹ï¼Œè¿”å›žæŒ‡é’ˆ */  
-    struct myword *new_word(char word[]);  
+    pmywd head, tmp;
+    pmywd instert_word(pmywd tmp, pmywd head); 	 /* ²åÈë½Úµã */
+    pmywd new_word(char word[]);  				 /* Éú³ÉÒ»¸öÐÂµÄ½Úµã£¬·µ»ØÖ¸Õë */
     char ch;
     char word[25];
     int i = 0;
@@ -136,7 +129,6 @@ struct myword *find_words(FILE *input)
     
     while (!feof(input)) {
         ch = fgetc(input);
-
         if ((ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122)) {
             word[i] = ch;
             i++;
@@ -154,11 +146,11 @@ struct myword *find_words(FILE *input)
     return head;
 }
 
-void destory_word(struct myword *head)
+void destory_word(pmywd head)
 {
     printf("start free!\n");
-    struct myword *tmp;
-    while(head != NULL) {
+    pmywd tmp;
+    while (head != NULL) {
         tmp = head;
         head  = head->next;
         free(tmp);
