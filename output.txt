@@ -1,7 +1,0 @@
-every,1
-go,1
-hello,2
-let,1
-one,1
-us,1
-world,1
